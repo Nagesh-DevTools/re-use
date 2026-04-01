@@ -1,0 +1,37 @@
+name: Reusable Workflow Example
+
+on:
+  workflow_call:
+    # 1. Inputs (Data passed from caller)
+    inputs:
+      username:
+        required: true
+        type: string
+    # 2. Secrets (Sensitive data)
+    secrets:
+      AUTH_TOKEN:
+        required: true
+    # 3. Outputs (Data sent back to caller)
+    outputs:
+      status_msg:
+        description: "The result of the workflow"
+        value: ${{ jobs.process.outputs.outcome }}
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    outputs:
+      outcome: ${{ steps.step1.outputs.final_status }}
+    steps:
+      - name: Use Inputs and Variables
+        run: |
+          echo "Hello ${{ inputs.username }}!"
+          echo "Environment is ${{ vars.GLOBAL_ENV }}" # Accessing a Repo Variable
+      
+      - name: Check Secret
+        run: echo "Secret length is ${#TOKEN}"
+        env:
+          TOKEN: ${{ secrets.AUTH_TOKEN }}
+
+      - id: step1
+        run: echo "final_status=Success" >> "$GITHUB_OUTPUT"
